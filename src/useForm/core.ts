@@ -1,6 +1,5 @@
-import { useCallback, useReducer, useId, useMemo, useRef } from "react";
-import { ZodSchema } from "zod";
-
+import { useCallback, useDebugValue, useId, useMemo, useReducer, useRef } from "react";
+import type { ZodSchema } from "zod";
 import type {
 	FormState,
 	FormActions,
@@ -12,8 +11,7 @@ import { reducer, initializer } from "./reducer";
 
 export function useForm<T extends FormDefaultValues>(
 	initialValues: T,
-	handlers?: FormHandlers<T>,
-	options: FormValidations<T> = {
+	options: FormHandlers<T> & FormValidations<T> = {
 		validateOnEvent: "submission",
 	}
 ) {
@@ -23,7 +21,6 @@ export function useForm<T extends FormDefaultValues>(
 		initializer
 	);
 	const formID = useId();
-
 	const initialPropsRef = useRef(initialValues);
 
 	const hasErrors = useMemo(() => {
@@ -109,7 +106,7 @@ export function useForm<T extends FormDefaultValues>(
 				}
 
 				try {
-					handlers?.onSubmit(state.values);
+					options?.onSubmit?.(state.values);
 					dispatch({
 						type: "SUBMIT_SUCCESS",
 						initialState: initializer(initialPropsRef.current),
@@ -124,8 +121,8 @@ export function useForm<T extends FormDefaultValues>(
 					event.preventDefault();
 				}
 
-				if (handlers?.onReset) {
-					handlers?.onReset(state.values);
+				if (options?.onReset) {
+					options?.onReset(state.values);
 				}
 
 				dispatch({
@@ -136,18 +133,25 @@ export function useForm<T extends FormDefaultValues>(
 		} as const;
 	}, [formID, state.values, hasErrors, options.validateOnEvent, initialValues]);
 
-	return {
-		getErrorProps,
-		getFieldProps,
-		getFormProps,
-		hasErrors,
-		setField(name: keyof T, value: any) {
+	const setField = useCallback(
+		(name: keyof T, value: any) => {
 			dispatch({
 				type: "INPUT_FIELD",
 				name,
 				value,
 			});
 		},
+		[dispatch]
+	);
+
+	useDebugValue(state.values);
+
+	return {
+		getErrorProps,
+		getFieldProps,
+		getFormProps,
+		hasErrors,
+		setField,
 		...state,
 	};
 }

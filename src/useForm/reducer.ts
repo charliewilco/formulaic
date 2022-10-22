@@ -2,15 +2,15 @@ import type { FormActions, FormState, FormDefaultValues } from "./types";
 
 export function reducer<T extends FormDefaultValues>(
 	state: FormState<T>,
-	_action: FormActions<T>
+	action: FormActions<T>
 ): FormState<T> {
-	switch (_action.type) {
+	switch (action.type) {
 		case "INPUT_FIELD": {
 			return {
 				...state,
 				values: {
 					...state.values,
-					[_action.name]: _action.value,
+					[action.name]: action.value,
 				},
 			};
 		}
@@ -22,19 +22,19 @@ export function reducer<T extends FormDefaultValues>(
 		}
 		case "SUBMIT_ERROR": {
 			const s = Object.assign({ isSubmitting: false }, state);
-			if (_action.errors) {
-				s.errors = _action.errors;
+			if (action.errors) {
+				s.errors = action.errors;
 			}
 			return s;
 		}
 		case "SUBMIT_SUCCESS":
 		case "RESET": {
 			return {
-				..._action.initialState,
+				...action.initialState,
 			};
 		}
 		case "VISIT_FIELD": {
-			state.visited.add(_action.field);
+			state.visited.add(action.field);
 
 			return {
 				...state,
@@ -46,7 +46,7 @@ export function reducer<T extends FormDefaultValues>(
 				...state,
 				errors: {
 					...state.errors,
-					[_action.key]: _action.message,
+					[action.key]: action.message,
 				},
 			};
 		}
@@ -56,11 +56,11 @@ export function reducer<T extends FormDefaultValues>(
 	}
 }
 
-export const initializer = <T extends FormDefaultValues>(values: T): FormState<T> => {
+export function initializer<T extends FormDefaultValues>(values: T): FormState<T> {
 	return {
 		isSubmitting: false,
 		values,
 		errors: {},
 		visited: new Set(),
 	};
-};
+}

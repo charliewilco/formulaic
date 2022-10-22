@@ -1,21 +1,11 @@
-import { describe, test, expect, vi } from "vitest";
-
+import { describe, test, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 
-import App from "../App";
+import App from "../basic";
 
-const IntersectionObserverMock = vi.fn(() => ({
-	disconnect: vi.fn(),
-	observe: vi.fn(),
-	takeRecords: vi.fn(),
-	unobserve: vi.fn(),
-}));
-
-vi.stubGlobal("IntersectionObserver", IntersectionObserverMock);
-
-describe("Todo List", () => {
+describe("Basic forms", () => {
 	test("setup", async () => {
 		render(<App />);
 

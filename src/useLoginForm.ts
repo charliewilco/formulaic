@@ -6,25 +6,20 @@ interface LoginForm {
 	password: string;
 }
 
-const initialValues: LoginForm = {
+const initialValues = {
 	email: "",
 	password: "",
 };
 
 export function useLoginForm() {
-	return useForm(
-		initialValues,
-		{
-			onSubmit(values) {
-				console.log(values);
-			},
+	return useForm<LoginForm>(initialValues, {
+		onSubmit(values) {
+			console.log(values);
 		},
-		{
-			schema: z.object({
-				email: z.string().email("Invalid email address"),
-				password: z.string().min(8),
-			}),
-			validateOnEvent: "blur",
-		}
-	);
+		schema: z.object({
+			email: z.string().email("Invalid email address"),
+			password: z.string().min(8),
+		}),
+		validateOnEvent: "blur",
+	});
 }

@@ -40,7 +40,7 @@ export type FormActions<T extends FormDefaultValues> =
 	  >;
 
 export interface FormHandlers<T> {
-	onSubmit(values: T): void;
+	onSubmit?(values: T): void;
 	onReset?(values: T): void;
 }
 
