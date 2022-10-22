@@ -1,42 +1,50 @@
 import type z from "zod";
 
 export interface FormState<T> {
-  isSubmitting: boolean;
-  values: T;
-  errors: Partial<Record<keyof T, string | undefined>>;
-  visited: Set<keyof T>;
+	isSubmitting: boolean;
+	values: T;
+	errors: Partial<Record<keyof T, string | undefined>>;
+	visited: Set<keyof T>;
 }
 
 export type FormDefaultValues = Record<string, any>;
 
 interface FormAction<T> {
-  type: T;
+	type: T;
 }
 
-interface FormActionLoad<T, K> extends FormAction<T> {
-  payload: K;
-}
+type FormActionLoad<T, K> = FormAction<T> & K;
 
 export type FormActions<T extends FormDefaultValues> =
-  | FormActionLoad<"INPUT_FIELD", Record<keyof T, any>>
-  | FormAction<"SUBMIT_START">
-  | FormActionLoad<"SUBMIT_SUCCESS" | "RESET", FormState<T>>
-  | FormActionLoad<
-      "SET_ERROR",
-      {
-        key: keyof T;
-        message: string;
-      }
-    >
-  | FormActionLoad<"VISIT_FIELD", keyof T>
-  | FormActionLoad<"SUBMIT_ERROR", Partial<Record<keyof T, string | undefined>>>;
+	| FormActionLoad<"INPUT_FIELD", { name: keyof T; value: any }>
+	| FormAction<"SUBMIT_START">
+	| FormActionLoad<
+			"SUBMIT_SUCCESS" | "RESET",
+			{
+				initialState: FormState<T>;
+			}
+	  >
+	| FormActionLoad<
+			"SET_ERROR",
+			{
+				key: keyof T;
+				message: string;
+			}
+	  >
+	| FormActionLoad<"VISIT_FIELD", { field: keyof T }>
+	| FormActionLoad<
+			"SUBMIT_ERROR",
+			{
+				errors: Partial<Record<keyof T, string | undefined>>;
+			}
+	  >;
 
-export interface FormProps<T extends FormDefaultValues> {
-  initialValues: T;
-  validationSchema?: z.ZodObject<any, any, any, any, T>;
-  onSubmit(values: T): void;
+export interface FormHandlers<T> {
+	onSubmit(values: T): void;
+	onReset?(values: T): void;
 }
 
-export interface FormOptions {
-  validateOnEvent?: "blur" | "submission";
+export interface FormValidations<T> {
+	schema?: z.ZodObject<any, any, any, any, T>;
+	validateOnEvent?: "blur" | "submission";
 }

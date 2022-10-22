@@ -19,29 +19,36 @@ describe("Todo List", () => {
 	test("setup", async () => {
 		render(<App />);
 
-		expect(screen.queryAllByRole("listitem")).toHaveLength(2);
+		expect(screen.queryAllByTestId(/test-/)).toHaveLength(2);
 	});
 
-	test("add todo", async () => {
+	test("can type in an input", async () => {
 		render(<App />);
 
-		await userEvent.click(screen.getByLabelText("Add New"));
+		const input = screen.getByRole<HTMLInputElement>("textbox");
+		await userEvent.type(input, "Hello World");
 
-		expect(screen.getByRole("dialog")).toBeInTheDocument();
-		const input = screen.getByRole("textbox");
-		await userEvent.type(input, "Eat a snack");
+		expect(input).toBeInTheDocument();
 
-		await userEvent.click(screen.getByLabelText("Submit"));
-		expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-
-		expect(screen.queryAllByRole("listitem")).toHaveLength(3);
+		expect(input.value).toBe("Hello World");
 	});
 
-	test("remove todo", async () => {
+	test("can run validations", async () => {
 		render(<App />);
 
-		await userEvent.click(screen.queryAllByLabelText("Remove Todo")[0]);
+		const input = screen.getByRole<HTMLInputElement>("textbox");
+		await userEvent.type(input, "Hello World");
 
-		expect(screen.queryAllByRole("listitem")).toHaveLength(1);
+		expect(input).toBeInTheDocument();
+
+		expect(input.value).toBe("Hello World");
+
+		await userEvent.tab();
+
+		expect(screen.getByText("Invalid email address")).toBeInTheDocument();
+	});
+
+	test.todo("track visited inputs", async () => {
+		render(<App />);
 	});
 });
